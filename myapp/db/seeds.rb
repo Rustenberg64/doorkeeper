@@ -7,3 +7,14 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+
+(1..10).each do |id|
+  User.find_or_create_by!(id:) do |new_user|
+    new_user.assign_attributes(
+      {
+        email: "user#{id}@example.com",
+        password: 'Password1',
+      }
+    )
+  end
+end
