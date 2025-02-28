@@ -1,3 +1,22 @@
+## 概要
+OpenID Connect で認証を行い、リソースサーバーから情報を取得するまでの一連の流れを確認できます
+
+使用gem
+- devise
+- doorkeeper
+- doorkeeper_openid_connect
+
+## 初期設定
+docker を起動してください。
+起動時にシードデータとしてユーザーが作成されます
+```
+docker compose up
+```
+
+
+
+
+
 ## 動作確認
 
 ![image](https://github.com/user-attachments/assets/532f481f-ffa6-4d32-be3e-3e2f5a78d796)
@@ -6,7 +25,7 @@
 https://authya.booth.pm/items/1550861より引用
 
 ### 前準備 クライアントの登録
-
+サーバー側であらかじめクライアントを登録します。ここで設定したuid, secret, redirect_uri は後でリクエストを送る際に使います
 ```ruby
 Doorkeeper::Application.create!(
 name: 'test_app',
@@ -19,14 +38,20 @@ confidential: true,
 ```
 
 ### 1. 認可コードの発行（図の3から9）
-https://github.com/doorkeeper-gem/doorkeeper/wiki/Authorization-Code-Flow
+Ref. https://github.com/doorkeeper-gem/doorkeeper/wiki/Authorization-Code-Flow
 
-ブラウザでアクセス
+下記をブラウザでアクセスすると、ログイン、同意画面があらわれます。すべてうまくいけば認可コード(Authorization Code）が発行されます
 http://localhost:2000/oauth/authorize?response_type=code&client_id=test_uid&client_secret=test_secret&redirect_uri=urn:ietf:wg:oauth:2.0:oob
 
-responseとして認可コードが返ってくる
+ログインユーザーは
+email: user1@example.com 
+password: Password1 
+を使ってください
 
-#### 2. アクセストークンの取得（図の10,11）
+### 2. アクセストークンの取得（図の10,11）
+発行された認可コードを用いて、アクセストークンの取得を行います。
+
+認可コードの使用期限が短いので、認可コード取得から時間が経ってしまった場合は認可コード習得から行ってください。
 
 ```ruby
 curl \
@@ -41,6 +66,10 @@ curl \
 
 response
 
+アクセストークンが得られます。id_token は ユーザーの認証を証明するためのトークンで、クライアント側でチェックが行われます。（サーバー側は返すだけで基本使わない）
+
+Ref. https://qiita.com/asagohan2301/items/cef8bcb969fef9064a5c
+
 ```ruby
 {
   "access_token": "kiYNazG5XWBcLvvXtgyPrmiIeXJ6tq1RReo7UGFx10M",
@@ -52,7 +81,11 @@ response
 }
 ```
 
+
 ### 3. リソースサーバーへのアクセス（図の12,13）
+アクセストークンを用いてリソースサーバーの情報を取得します
+
+アクセストークンはユーザーと紐づいているので、アクセストークンからユーザーが特定でき、適切な情報を返します
 
 ```ruby
 curl -H GET 'http://localhost:2000/api/v1/me' \
