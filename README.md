@@ -27,7 +27,9 @@ https://authya.booth.pm/items/1550861より引用
 ### 前準備 クライアントの登録
 サーバー側であらかじめクライアントを登録します。ここで設定したuid, secret, redirect_uri は後でリクエストを送る際に使います
 ```ruby
-Doorkeeper::Application.create!(
+$ docker compose exec doorkeeper_rails bash
+
+$ Doorkeeper::Application.create!(
 name: 'test_app',
 uid: 'test_uid',
 secret: 'test_secret',
