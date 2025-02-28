@@ -1,21 +1,11 @@
-### 動作確認
+## 動作確認
 
 ![image](https://github.com/user-attachments/assets/532f481f-ffa6-4d32-be3e-3e2f5a78d796)
 
 
 https://authya.booth.pm/items/1550861より引用
 
-前準備 クライアントの登録
-
-3 - 9 認可コードの発行
-
-10,11 アクセストークンの取得
-
-13, 14 UserInfoエンドポイントへのアクセス
-
-その他 リソースサーバーへのアクセス
-
-前準備 クライアントの登録
+### 前準備 クライアントの登録
 
 ```ruby
 Doorkeeper::Application.create!(
@@ -28,17 +18,15 @@ confidential: true,
 )
 ```
 
-3 - 9 認可コードの発行
-
+### 1. 認可コードの発行（図の3から9）
 https://github.com/doorkeeper-gem/doorkeeper/wiki/Authorization-Code-Flow
 
 ブラウザでアクセス
-
 http://localhost:2000/oauth/authorize?response_type=code&client_id=test_uid&client_secret=test_secret&redirect_uri=urn:ietf:wg:oauth:2.0:oob
 
 responseとして認可コードが返ってくる
 
-10,11 アクセストークンの取得
+#### 2. アクセストークンの取得（図の10,11）
 
 ```ruby
 curl \
@@ -64,31 +52,22 @@ response
 }
 ```
 
-13, 14 UserInfoエンドポイントへのアクセス
-
-```ruby
-curl -H GET 'http://localhost:2000/oauth/userinfo' \
--H 'Content-Type:application/json;charset=utf-8' \
--H 'Authorization: Bearer #{得られたアクセストークン}' \
-| jq
-```
-
-response （本来はユーザーのidやemail、profileを返す）
-
-```ruby
-{
-  "sub": "c5dabe93ba28be4dc7ae2ab851a346353682e178778eea5b96ac7af2ce10bfff"
-}
-```
-
-その他 リソースサーバーへのアクセス
+### 3. リソースサーバーへのアクセス（図の12,13）
 
 ```ruby
 curl -H GET 'http://localhost:2000/api/v1/me' \
 -H 'Content-Type:application/json;charset=utf-8' \
 -H 'Authorization: Bearer #{得られたアクセストークン}' \
 | jq
-
 ```
 
 response
+```ruby
+{
+  "id": 1,
+  "email": "user1@example.com",
+  "created_at": "2025-02-27T05:37:38.177Z",
+  "updated_at": "2025-02-27T05:37:38.177Z"
+}
+```
+
